@@ -127,11 +127,32 @@ Deno.serve(async (req: Request) => {
     let profileId: string | null = null;
 
     try {
-      // STEP 2: Create workspace for coaches
+      // STEP 2: Create profile FIRST (required for workspace.owner_id foreign key)
+      console.log("[signup-coach] Step 2: Creating profile");
+      const { data: profileData, error: profileError } = await adminClient
+        .from("profiles")
+        .insert({
+          id: userId,
+          role,
+          full_name: fullName,
+          workspace_id: null, // Will update after workspace creation
+          onboarding_completed: role === "client",
+        })
+        .select()
+        .single();
+
+      if (profileError || !profileData) {
+        throw new Error(`Profile creation failed: ${profileError?.message}`);
+      }
+
+      profileId = profileData.id;
+      console.log(`[signup-coach] Profile created: ${profileId}`);
+
+      // STEP 3: Create workspace for coaches
       if (role === "coach") {
-        console.log("[signup-coach] Step 2: Creating workspace");
+        console.log("[signup-coach] Step 3: Creating workspace");
         const subdomain = generateSubdomainFromName(workspaceName!);
-        
+
         const { data: workspaceData, error: workspaceError } = await adminClient
           .from("workspaces")
           .insert({
@@ -150,10 +171,22 @@ Deno.serve(async (req: Request) => {
         workspaceId = workspaceData.id;
         console.log(`[signup-coach] Workspace created: ${workspaceId}`);
 
-        // STEP 3: Create workspace subscription
-        console.log("[signup-coach] Step 3: Creating workspace subscription");
+        // STEP 4: Update profile with workspace_id
+        console.log("[signup-coach] Step 4: Linking profile to workspace");
+        const { error: updateError } = await adminClient
+          .from("profiles")
+          .update({ workspace_id: workspaceId })
+          .eq("id", userId);
+
+        if (updateError) {
+          console.error("[signup-coach] Profile update error:", updateError);
+          throw new Error(`Failed to link profile to workspace: ${updateError.message}`);
+        }
+
+        // STEP 5: Create workspace subscription
+        console.log("[signup-coach] Step 5: Creating workspace subscription");
         const trialEndsAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString();
-        
+
         const { error: subError } = await adminClient
           .from("workspace_subscriptions")
           .insert({
@@ -167,8 +200,8 @@ Deno.serve(async (req: Request) => {
           console.error("[signup-coach] Subscription creation error:", subError);
         }
 
-        // STEP 4: Create workspace features
-        console.log("[signup-coach] Step 4: Creating workspace features");
+        // STEP 6: Create workspace features
+        console.log("[signup-coach] Step 6: Creating workspace features");
         const { error: featuresError } = await adminClient
           .from("workspace_features")
           .insert({
@@ -186,27 +219,6 @@ Deno.serve(async (req: Request) => {
         }
       }
 
-      // STEP 5: Create profile
-      console.log("[signup-coach] Step 5: Creating profile");
-      const { data: profileData, error: profileError } = await adminClient
-        .from("profiles")
-        .insert({
-          id: userId,
-          role,
-          full_name: fullName,
-          workspace_id: workspaceId,
-          onboarding_completed: role === "client",
-        })
-        .select()
-        .single();
-
-      if (profileError || !profileData) {
-        throw new Error(`Profile creation failed: ${profileError?.message}`);
-      }
-
-      profileId = profileData.id;
-      console.log(`[signup-coach] Profile created: ${profileId}`);
-
       // SUCCESS!
       console.log(`[signup-coach] Signup complete for ${email}`);
       return new Response(
@@ -222,12 +234,25 @@ Deno.serve(async (req: Request) => {
         }
       );
     } catch (setupError) {
-      // ROLLBACK: Delete the auth user if workspace/profile creation failed
+      // ROLLBACK: Delete profile, workspace, and auth user if setup failed
       console.error("[signup-coach] Setup error, attempting rollback:", setupError);
-      
+
       try {
+        // Delete profile first (if it exists)
+        if (profileId) {
+          await adminClient.from("profiles").delete().eq("id", profileId);
+          console.log(`[signup-coach] Rolled back profile: ${profileId}`);
+        }
+
+        // Delete workspace (if it exists) - will cascade delete subscriptions/features
+        if (workspaceId) {
+          await adminClient.from("workspaces").delete().eq("id", workspaceId);
+          console.log(`[signup-coach] Rolled back workspace: ${workspaceId}`);
+        }
+
+        // Delete auth user
         await adminClient.auth.admin.deleteUser(userId);
-        console.log(`[signup-coach] Rolled back user: ${userId}`);
+        console.log(`[signup-coach] Rolled back auth user: ${userId}`);
       } catch (rollbackError) {
         console.error("[signup-coach] Rollback failed:", rollbackError);
       }
@@ -237,7 +262,7 @@ Deno.serve(async (req: Request) => {
           success: false,
           error: setupError instanceof Error ? setupError.message : "Account setup failed",
           errorCode: "SETUP_FAILED",
-          step: workspaceId ? "profile" : "workspace",
+          step: profileId ? (workspaceId ? "linking" : "workspace") : "profile",
         } as SignupResponse),
         {
           status: 500,
