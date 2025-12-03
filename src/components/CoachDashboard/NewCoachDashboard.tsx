@@ -24,6 +24,7 @@ import { ClientCRMSection } from './sections/ClientCRMSection';
 import { MilestoneTrackerSection } from './sections/MilestoneTrackerSection';
 import { CalendarSection } from './sections/CalendarSection';
 import { AIAssistantSection } from './sections/AIAssistantSection';
+import { ThemeToggle } from '../ThemeToggle';
 
 type Tab = 'overview' | 'branding' | 'offers' | 'funnel' | 'clients' | 'milestones' | 'calendar' | 'ai-assistant';
 
@@ -79,7 +80,7 @@ export function NewCoachDashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-luxury">
-      <nav className="bg-dark-900/80 backdrop-blur-xl border-b border-dark-700">
+      <nav className="bg-white/80 dark:bg-dark-900/80 backdrop-blur-xl border-b border-light-300 dark:border-dark-700">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <div className="w-10 h-10 bg-gradient-blue rounded-lg flex items-center justify-center">
@@ -88,8 +89,9 @@ export function NewCoachDashboard() {
             <span className="text-2xl font-bold gradient-text">ElevateOS</span>
           </div>
           <div className="flex items-center space-x-4">
-            <button className="p-2 hover:bg-dark-800 rounded-lg transition-colors relative">
-              <Bell className="w-5 h-5 text-gray-400" />
+            <ThemeToggle />
+            <button className="p-2 hover:bg-light-300 dark:hover:bg-dark-800 rounded-lg transition-colors relative">
+              <Bell className="w-5 h-5 text-gray-600 dark:text-gray-400" />
               <span className="absolute top-1 right-1 w-2 h-2 bg-primary-500 rounded-full"></span>
             </button>
             <div className="flex items-center space-x-3">
@@ -103,16 +105,16 @@ export function NewCoachDashboard() {
                 </div>
               )}
               <div>
-                <div className="text-sm font-semibold text-white">{profile?.full_name}</div>
-                <div className="text-xs text-gray-400">Coach</div>
+                <div className="text-sm font-semibold text-gray-900 dark:text-white">{profile?.full_name}</div>
+                <div className="text-xs text-gray-600 dark:text-gray-400">Coach</div>
               </div>
             </div>
             <button
               onClick={signOut}
-              className="p-2 hover:bg-dark-800 rounded-lg transition-colors"
+              className="p-2 hover:bg-light-300 dark:hover:bg-dark-800 rounded-lg transition-colors"
               title="Sign out"
             >
-              <LogOut className="w-5 h-5 text-gray-400" />
+              <LogOut className="w-5 h-5 text-gray-600 dark:text-gray-400" />
             </button>
           </div>
         </div>
@@ -120,8 +122,8 @@ export function NewCoachDashboard() {
 
       <div className="max-w-7xl mx-auto px-6 py-8">
         <div className="mb-8">
-          <h1 className="text-white mb-2">Welcome back, {profile?.full_name}</h1>
-          <p className="text-gray-400">Manage your coaching business from one powerful dashboard</p>
+          <h1 className="text-gray-900 dark:text-white mb-2">Welcome back, {profile?.full_name}</h1>
+          <p className="text-gray-600 dark:text-gray-400">Manage your coaching business from one powerful dashboard</p>
         </div>
 
         <div className="flex items-start space-x-6">
@@ -133,7 +135,7 @@ export function NewCoachDashboard() {
                   className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all ${
                     activeTab === 'overview'
                       ? 'bg-gradient-blue text-white'
-                      : 'text-gray-400 hover:bg-dark-800 hover:text-white'
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-light-200 dark:hover:bg-dark-800 hover:text-gray-900 dark:hover:text-white'
                   }`}
                 >
                   <LayoutDashboard className="w-5 h-5" />
@@ -145,7 +147,7 @@ export function NewCoachDashboard() {
                   className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all ${
                     activeTab === 'branding'
                       ? 'bg-gradient-blue text-white'
-                      : 'text-gray-400 hover:bg-dark-800 hover:text-white'
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-light-200 dark:hover:bg-dark-800 hover:text-gray-900 dark:hover:text-white'
                   }`}
                 >
                   <Palette className="w-5 h-5" />
@@ -157,7 +159,7 @@ export function NewCoachDashboard() {
                   className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all ${
                     activeTab === 'offers'
                       ? 'bg-gradient-blue text-white'
-                      : 'text-gray-400 hover:bg-dark-800 hover:text-white'
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-light-200 dark:hover:bg-dark-800 hover:text-gray-900 dark:hover:text-white'
                   }`}
                 >
                   <Package className="w-5 h-5" />
@@ -169,7 +171,7 @@ export function NewCoachDashboard() {
                   className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all ${
                     activeTab === 'funnel'
                       ? 'bg-gradient-blue text-white'
-                      : 'text-gray-400 hover:bg-dark-800 hover:text-white'
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-light-200 dark:hover:bg-dark-800 hover:text-gray-900 dark:hover:text-white'
                   }`}
                 >
                   <Globe className="w-5 h-5" />
@@ -181,7 +183,7 @@ export function NewCoachDashboard() {
                   className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all ${
                     activeTab === 'clients'
                       ? 'bg-gradient-blue text-white'
-                      : 'text-gray-400 hover:bg-dark-800 hover:text-white'
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-light-200 dark:hover:bg-dark-800 hover:text-gray-900 dark:hover:text-white'
                   }`}
                 >
                   <Users className="w-5 h-5" />
@@ -193,7 +195,7 @@ export function NewCoachDashboard() {
                   className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all ${
                     activeTab === 'milestones'
                       ? 'bg-gradient-blue text-white'
-                      : 'text-gray-400 hover:bg-dark-800 hover:text-white'
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-light-200 dark:hover:bg-dark-800 hover:text-gray-900 dark:hover:text-white'
                   }`}
                 >
                   <Target className="w-5 h-5" />
@@ -205,7 +207,7 @@ export function NewCoachDashboard() {
                   className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all ${
                     activeTab === 'calendar'
                       ? 'bg-gradient-blue text-white'
-                      : 'text-gray-400 hover:bg-dark-800 hover:text-white'
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-light-200 dark:hover:bg-dark-800 hover:text-gray-900 dark:hover:text-white'
                   }`}
                 >
                   <Calendar className="w-5 h-5" />
@@ -217,7 +219,7 @@ export function NewCoachDashboard() {
                   className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all ${
                     activeTab === 'ai-assistant'
                       ? 'bg-gradient-violet text-white'
-                      : 'text-gray-400 hover:bg-dark-800 hover:text-white'
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-light-200 dark:hover:bg-dark-800 hover:text-gray-900 dark:hover:text-white'
                   }`}
                 >
                   <Sparkles className="w-5 h-5" />
@@ -236,44 +238,44 @@ export function NewCoachDashboard() {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                   <div className="card-glass">
                     <div className="flex items-center justify-between mb-4">
-                      <div className="text-gray-400 text-sm">Total Clients</div>
+                      <div className="text-gray-600 dark:text-gray-400 text-sm">Total Clients</div>
                       <Users className="w-5 h-5 text-primary-500" />
                     </div>
-                    <div className="text-3xl font-bold text-white mb-1">{stats.totalClients}</div>
-                    <div className="text-xs text-gray-500">{stats.activeClients} active</div>
+                    <div className="text-3xl font-bold text-gray-900 dark:text-white mb-1">{stats.totalClients}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-500">{stats.activeClients} active</div>
                   </div>
 
                   <div className="card-glass">
                     <div className="flex items-center justify-between mb-4">
-                      <div className="text-gray-400 text-sm">Monthly Revenue</div>
+                      <div className="text-gray-600 dark:text-gray-400 text-sm">Monthly Revenue</div>
                       <DollarSign className="w-5 h-5 text-primary-500" />
                     </div>
-                    <div className="text-3xl font-bold text-white mb-1">${stats.monthlyRevenue.toLocaleString()}</div>
-                    <div className="text-xs text-primary-400">MRR</div>
+                    <div className="text-3xl font-bold text-gray-900 dark:text-white mb-1">${stats.monthlyRevenue.toLocaleString()}</div>
+                    <div className="text-xs text-primary-500 dark:text-primary-400">MRR</div>
                   </div>
 
                   <div className="card-glass">
                     <div className="flex items-center justify-between mb-4">
-                      <div className="text-gray-400 text-sm">Completion Rate</div>
+                      <div className="text-gray-600 dark:text-gray-400 text-sm">Completion Rate</div>
                       <CheckCircle2 className="w-5 h-5 text-primary-500" />
                     </div>
-                    <div className="text-3xl font-bold text-white mb-1">{stats.completionRate}%</div>
-                    <div className="text-xs text-gray-500">Client progress</div>
+                    <div className="text-3xl font-bold text-gray-900 dark:text-white mb-1">{stats.completionRate}%</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-500">Client progress</div>
                   </div>
 
                   <div className="card-glass">
                     <div className="flex items-center justify-between mb-4">
-                      <div className="text-gray-400 text-sm">Upcoming Sessions</div>
+                      <div className="text-gray-600 dark:text-gray-400 text-sm">Upcoming Sessions</div>
                       <Clock className="w-5 h-5 text-accent-500" />
                     </div>
-                    <div className="text-3xl font-bold text-white mb-1">{stats.upcomingSessions}</div>
-                    <div className="text-xs text-gray-500">This week</div>
+                    <div className="text-3xl font-bold text-gray-900 dark:text-white mb-1">{stats.upcomingSessions}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-500">This week</div>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="card-glass">
-                    <h3 className="text-xl font-semibold text-white mb-4">Quick Actions</h3>
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</h3>
                     <div className="space-y-3">
                       <button
                         onClick={() => setActiveTab('offers')}

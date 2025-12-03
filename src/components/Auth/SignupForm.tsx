@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { UserPlus, Mail, Lock, User, AlertCircle } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { ThemeToggle } from '../ThemeToggle';
 
 type SignupFormProps = {
   onSwitchToLogin: () => void;
@@ -57,10 +58,13 @@ export function SignupForm({ onSwitchToLogin }: SignupFormProps) {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-luxury px-6 py-12">
+      <div className="fixed top-4 right-4 z-50">
+        <ThemeToggle />
+      </div>
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h2 className="text-white mb-2">Start Your Journey</h2>
-          <p className="text-gray-400">Create your account to begin transformation</p>
+          <h2 className="text-gray-900 dark:text-white mb-2">Start Your Journey</h2>
+          <p className="text-gray-600 dark:text-gray-400">Create your account to begin transformation</p>
         </div>
 
         <div className="card-glass">

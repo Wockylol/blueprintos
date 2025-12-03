@@ -1,6 +1,7 @@
 import { ArrowRight, PlayCircle, Award, Users, TrendingUp, Star, Quote } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { supabase, Testimonial } from '../lib/supabase';
+import { ThemeToggle } from './ThemeToggle';
 
 export function LandingPage({ onGetStarted }: { onGetStarted: () => void }) {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
@@ -34,7 +35,7 @@ export function LandingPage({ onGetStarted }: { onGetStarted: () => void }) {
 
   return (
     <div className="min-h-screen bg-gradient-luxury">
-      <nav className="fixed top-0 w-full z-50 bg-dark-900/80 backdrop-blur-xl border-b border-dark-700">
+      <nav className="fixed top-0 w-full z-50 bg-white/80 dark:bg-dark-900/80 backdrop-blur-xl border-b border-light-300 dark:border-dark-700">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <div className="w-10 h-10 bg-gradient-blue rounded-lg flex items-center justify-center">
@@ -43,22 +44,25 @@ export function LandingPage({ onGetStarted }: { onGetStarted: () => void }) {
             <span className="text-2xl font-bold gradient-text">BlueprintOS</span>
           </div>
           <div className="hidden md:flex items-center space-x-8">
-            <a href="#features" className="text-gray-300 hover:text-primary-400 transition-colors">
+            <a href="#features" className="text-gray-700 dark:text-gray-300 hover:text-primary-500 dark:hover:text-primary-400 transition-colors">
               Features
             </a>
-            <a href="#testimonials" className="text-gray-300 hover:text-primary-400 transition-colors">
+            <a href="#testimonials" className="text-gray-700 dark:text-gray-300 hover:text-primary-500 dark:hover:text-primary-400 transition-colors">
               Coaches
             </a>
-            <a href="#pricing" className="text-gray-300 hover:text-primary-400 transition-colors">
+            <a href="#pricing" className="text-gray-700 dark:text-gray-300 hover:text-primary-500 dark:hover:text-primary-400 transition-colors">
               Pricing
             </a>
           </div>
-          <button
-            onClick={onGetStarted}
-            className="btn-primary"
-          >
-            Start Free Trial
-          </button>
+          <div className="flex items-center space-x-4">
+            <ThemeToggle />
+            <button
+              onClick={onGetStarted}
+              className="btn-primary"
+            >
+              Start Free Trial
+            </button>
+          </div>
         </div>
       </nav>
 
