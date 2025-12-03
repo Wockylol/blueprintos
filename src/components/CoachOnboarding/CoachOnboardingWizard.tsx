@@ -97,18 +97,102 @@ export function CoachOnboardingWizard() {
   };
 
   const saveStep = async () => {
-    if (!profile?.workspace_id) return;
-
     setLoading(true);
     try {
+      // Step 1: Create workspace if it doesn't exist
+      if (currentStep === 1) {
+        if (!profile?.workspace_id) {
+          console.log('[Onboarding] No workspace found, creating one...');
+
+          if (!workspaceData.name || !workspaceData.subdomain) {
+            alert('Please enter a workspace name');
+            setLoading(false);
+            return;
+          }
+
+          const { data: newWorkspace, error: createError } = await supabase
+            .from('workspaces')
+            .insert({
+              name: workspaceData.name,
+              subdomain: workspaceData.subdomain,
+              owner_id: profile?.id,
+              is_active: true,
+              onboarding_steps: { step1: true },
+            })
+            .select()
+            .single();
+
+          if (createError) {
+            console.error('[Onboarding] Failed to create workspace:', createError);
+            alert('Failed to create workspace. Please try again.');
+            setLoading(false);
+            return;
+          }
+
+          console.log('[Onboarding] Workspace created:', newWorkspace.id);
+
+          // Create workspace subscription
+          const trialEndsAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString();
+          await supabase.from('workspace_subscriptions').insert({
+            workspace_id: newWorkspace.id,
+            plan_tier: 'starter',
+            status: 'trialing',
+            trial_ends_at: trialEndsAt,
+          });
+
+          // Create workspace features
+          await supabase.from('workspace_features').insert({
+            workspace_id: newWorkspace.id,
+            max_clients: 10,
+            custom_domain_enabled: false,
+            white_label_enabled: false,
+            api_access_enabled: false,
+            team_members_enabled: false,
+            ai_generation_credits: 10,
+          });
+
+          // Update profile with workspace_id
+          const { error: updateError } = await supabase
+            .from('profiles')
+            .update({ workspace_id: newWorkspace.id })
+            .eq('id', profile?.id);
+
+          if (updateError) {
+            console.error('[Onboarding] Failed to update profile:', updateError);
+          }
+
+          // Refresh profile to get the new workspace_id
+          await refreshProfile();
+          setLoading(false);
+          return;
+        } else {
+          // Update existing workspace
+          await supabase
+            .from('workspaces')
+            .update({
+              name: workspaceData.name,
+              subdomain: workspaceData.subdomain,
+              onboarding_steps: { step1: true },
+            })
+            .eq('id', profile.workspace_id);
+
+          await refreshWorkspace();
+          setLoading(false);
+          return;
+        }
+      }
+
+      // All other steps require workspace_id
+      if (!profile?.workspace_id) {
+        alert('Please complete Step 1 first');
+        setLoading(false);
+        return;
+      }
+
       const updates: Partial<Workspace> = {};
       const stepUpdates: Record<string, boolean> = {};
 
-      if (currentStep === 1) {
-        updates.name = workspaceData.name;
-        updates.subdomain = workspaceData.subdomain;
-        stepUpdates.step1 = true;
-      } else if (currentStep === 2) {
+      if (currentStep === 2) {
         updates.logo_url = branding.logoUrl;
         updates.primary_color = branding.primaryColor;
         updates.secondary_color = branding.secondaryColor;
