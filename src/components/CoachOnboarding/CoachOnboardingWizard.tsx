@@ -18,7 +18,7 @@ import { generateSubdomainFromName, checkSubdomainAvailability } from '../../lib
 type Step = 1 | 2 | 3 | 4 | 5 | 6;
 
 export function CoachOnboardingWizard() {
-  const { profile, workspace, refreshWorkspace } = useAuth();
+  const { profile, workspace, refreshProfile, refreshWorkspace } = useAuth();
   const [currentStep, setCurrentStep] = useState<Step>(1);
   const [loading, setLoading] = useState(false);
   const [launched, setLaunched] = useState(false);
@@ -182,12 +182,23 @@ export function CoachOnboardingWizard() {
       console.log('[Onboarding] Starting final completion...');
       await saveStep();
 
-      if (!profile?.workspace_id) {
-        console.error('[Onboarding] No workspace_id found on profile');
+      console.log('[Onboarding] Refreshing profile to get latest workspace_id...');
+      await refreshProfile();
+
+      const { data: latestProfile } = await supabase
+        .from('profiles')
+        .select('workspace_id')
+        .eq('id', profile?.id)
+        .maybeSingle();
+
+      if (!latestProfile?.workspace_id) {
+        console.error('[Onboarding] No workspace_id found on profile after refresh');
         alert('Error: Workspace not found. Please contact support.');
         setLoading(false);
         return;
       }
+
+      const workspaceId = latestProfile.workspace_id;
 
       console.log('[Onboarding] Updating workspace onboarding steps...');
       const { error: workspaceError } = await supabase
@@ -195,7 +206,7 @@ export function CoachOnboardingWizard() {
         .update({
           onboarding_steps: { step1: true, step2: true, step3: true, step4: true, step5: true, step6: true },
         })
-        .eq('id', profile.workspace_id);
+        .eq('id', workspaceId);
 
       if (workspaceError) {
         console.error('[Onboarding] Workspace update error:', workspaceError);

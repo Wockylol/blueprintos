@@ -14,6 +14,7 @@ type AuthContextType = {
   signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>;
   signOut: () => Promise<void>;
   updateProfile: (updates: Partial<Profile>) => Promise<{ error: Error | null }>;
+  refreshProfile: () => Promise<void>;
   refreshWorkspace: () => Promise<void>;
   retryLoadProfile: () => Promise<void>;
 };
@@ -191,6 +192,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const refreshProfile = async () => {
+    if (user) {
+      console.log('[AuthContext] Refreshing profile...');
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (!error && data) {
+        setProfile(data);
+        if (data.workspace_id) {
+          await loadWorkspaceById(data.workspace_id);
+        }
+      }
+    }
+  };
+
   const refreshWorkspace = async () => {
     if (profile?.workspace_id) {
       await loadWorkspaceById(profile.workspace_id);
@@ -319,6 +338,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signIn,
     signOut,
     updateProfile,
+    refreshProfile,
     refreshWorkspace,
     retryLoadProfile,
   };
